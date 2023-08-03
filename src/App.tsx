@@ -5,10 +5,12 @@ import {
 	TextField,
 	Typography,
 	Select,
+	Button,
 	MenuItem,
 	Switch,
 } from '@mui/material';
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
+import AddIcon from '@mui/icons-material/Add';
 import styled from 'styled-components';
 import obj from './utils/data.json';
 
@@ -71,19 +73,26 @@ const CustomMenuItem = styled.li`
 	}
 `;
 
-const ConverterContainer = styled.div`
-	padding-top: 3rem;
-`;
+const ConverterContainer = styled.div``;
 
 const Calculation = styled.div`
 	display: flex;
 	align-items: stretch;
 `;
 
+const ResultContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    min-height: 5rem;
+    position: relative;
+`;
+
 const Result = styled.div`
 	display: flex;
-	justify-content: center;
-  	margin-bottom: 1.5rem;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
   
   	.result {
 	  	margin-right: 5px;
@@ -99,8 +108,7 @@ const LeftSide = styled.div`
 `;
 
 const MiddleSide = styled.div`
-	align-self: center;
-	padding: 0 2rem;
+	padding: 1rem 2rem 0;
 `;
 
 const RightSide = styled.div`
@@ -219,13 +227,15 @@ const Converter = () => {
 					<TextField
 						label="Sum"
 						variant="standard"
-						value={price}
+						value={`${price}`}
 						sx={{
 							marginRight: '15px',
 							minWidth: '50px',
 						}}
-						InputProps={{
-							readOnly: true,
+						onChange={(evt: any) => {
+							const { target: { value } } = evt;
+							const sanitizedValue = value.replace(/[^0-9\.]/g,'');
+							handleItemSumChange(sanitizedValue, index);
 						}}
 					/>
 					{renderCurrencySelect(currency, handleItemCurrencyChange, 'Currency', index)}
@@ -234,47 +244,78 @@ const Converter = () => {
 		});
 	}
 
+	const handleItemSumChange = (value: any, index: number) => {
+		const newData = [...items];
+		newData[index] = {
+			...items[index],
+			price: Number(value),
+		}
+
+		setItems(newData);
+	}
+
 	const handleSwitchChange = (index: number) => {
-		setItems((prevItems: any) => {
-			return prevItems.map((item: any, idx: number) => {
-				if (index === idx) {
-					return {
-						...item,
-						selected: !item.selected,
-					}
-				}
-				return item;
-			});
-		});
+		const newData = [...items];
+		newData[index] = {
+			...items[index],
+			selected: !items[index].selected
+		}
+
+		setItems(newData);
 	}
 
 	const handleItemCurrencyChange = (value: string, itemIndex: number) => {
-		setItems((prevData: any) => prevData.map((item: any, idx: number) => {
-			if (itemIndex === idx) {
-				return {
-					...item,
-					currency: value,
-				}
-			}
-			return item;
-		}));
+		const newData = [...items];
+		newData[itemIndex] = {
+			...items[itemIndex],
+			currency: value
+		}
+
+		setItems(newData);
 	}
 
 	const handleConversionToChange = (value: string) => {
 		setConversionTo(value);
 	}
 
+	const handleAddMoreClick = () => {
+		const newData = [...items];
+		newData.push({
+			id: Number(items[items.length-1] + 1),
+			price: 0,
+			currency: currencyList[0],
+			selected: false,
+		});
+
+		setItems(newData);
+	}
+
 	return (
 		<ConverterContainer>
-			{result && (
-				<Result>
-					<Typography className="result">{result}</Typography>
-					<Typography className="currency">{conversionTo}</Typography>
-				</Result>
-			)}
+			<ResultContainer>
+				{result && (
+					<Result>
+						<Typography className="result">{result}</Typography>
+						<Typography className="currency">{conversionTo}</Typography>
+					</Result>
+				)}
+			</ResultContainer>
 			<Calculation>
 				<LeftSide>
 					{renderCurrencyItems()}
+					<Button
+						fullWidth
+						color="primary"
+						variant="contained"
+						startIcon={<AddIcon />}
+						sx={{
+							marginTop: '1rem',
+							textAlign: 'center',
+						}}
+						onClick={handleAddMoreClick}
+					>
+						Add more
+					</Button>
 				</LeftSide>
 				<MiddleSide>
 					<CurrencyExchangeIcon color="success" />
