@@ -59,8 +59,9 @@ const CustomMenuItem = styled.li`
 		bottom: -1px;
 		width: 0;
 		height: 1px;
+		opacity: 0;
 		background-color: black;
-		transition: width 0.2s ease;
+		transition: width 0.2s ease, opacity 0.6s ease;
 	}
 	
 	&:hover {
@@ -68,6 +69,7 @@ const CustomMenuItem = styled.li`
 
 		&:before {
 			width: 100%;
+			opacity: 1;
 			transition-duration: 0.3s;
 		}
 	}
@@ -123,18 +125,18 @@ const FormControlItem = styled.div`
 	align-items: flex-end;
 `;
 
-const MenuList = () => {
-	const menu = ['Home', 'Photos', 'Something bigger'];
-
-	return (
-		<CustomMenu>
-			{menu.map((item, idx) => <CustomMenuItem key={idx}>{item}</CustomMenuItem>)}
-		</CustomMenu>
-	);
+type MenuListProps = {
+	menu: string[],
 }
 
+const MenuList = ({ menu }: MenuListProps) => (
+	<CustomMenu>
+		{menu.map((item, idx) => <CustomMenuItem key={idx}>{item}</CustomMenuItem>)}
+	</CustomMenu>
+);
+
 const Converter = () => {
-	const currencyPairs = obj?.['currencies-pairs'];
+	const { 'currencies-pairs': currencyPairs, data } = obj;
 	const [currencyList, setCurrencyList] = useState<any>([]);
 	const [items, setItems] = useState<any>([]);
 	const [conversionTo, setConversionTo] = useState<string>('');
@@ -169,8 +171,8 @@ const Converter = () => {
 	}
 
 	useEffect(() => {
-		const filteredCurrencyList = Array.from(getCurrencyListFromPairs(obj['currencies-pairs']));
-		const transformedItemList = obj?.data.map((item: any) => ({
+		const filteredCurrencyList = Array.from(getCurrencyListFromPairs(currencyPairs));
+		const transformedItemList = data.map((item: any) => ({
 			...item,
 			selected: false,
 		}));
@@ -329,10 +331,12 @@ const Converter = () => {
 };
 
 function App() {
+	const { menu = [] } = obj;
+
 	return (
 		<AppContainer>
 			<Wrapper>
-				<MenuList />
+				<MenuList menu={menu} />
 				<Divider />
 				<Converter />
 			</Wrapper>

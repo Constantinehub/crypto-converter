@@ -33,5 +33,10 @@
     "BTC-ETH": 15.31,
     "ETH-USDT": 1884.68,
     "ETH-BTC": 0.065
-  }
+  },
+  "menu": [
+    "First",
+    "Second",
+    "Something bigger"
+  ]
 }
